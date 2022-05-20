@@ -1,0 +1,11 @@
+set(SRC
+  ${SRC}
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+  PARENT_SCOPE
+)
+
+set(INC
+  ${INC}
+  ${CMAKE_CURRENT_SOURCE_DIR}/inc
+  PARENT_SCOPE
+)
