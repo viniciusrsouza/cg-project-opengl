@@ -11,8 +11,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 project(cgproject VERSION 1.0)
 
 add_subdirectory(app)
+add_subdirectory(vendors)
 
 add_executable(cgproject ${SRC})
 
 target_include_directories(cgproject PRIVATE ${INC})
-# target_link_libraries(cg mathlib filelib wx::net wx::core wx::base)
+target_link_libraries(cgproject glfw)
