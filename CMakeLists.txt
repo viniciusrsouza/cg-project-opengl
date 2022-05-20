@@ -10,8 +10,9 @@ add_custom_target(run
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 project(cgproject VERSION 1.0)
 
-add_subdirectory(app)
+
 add_subdirectory(vendors)
+add_subdirectory(app)
 
 add_executable(cgproject ${SRC})
 
