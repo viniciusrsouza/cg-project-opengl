@@ -1,1 +1,4 @@
 build
+vendors/glew*
+temp
+**/.DS_Store

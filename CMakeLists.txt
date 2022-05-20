@@ -17,4 +17,7 @@ add_subdirectory(app)
 add_executable(cgproject ${SRC})
 
 target_include_directories(cgproject PRIVATE ${INC})
-target_link_libraries(cgproject glfw)
+target_link_libraries(
+  cgproject 
+  glfw
+)
