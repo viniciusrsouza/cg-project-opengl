@@ -12,6 +12,7 @@ public:
   void bind();
 
   glm::vec3 position;
+  glm::vec3 scale;
   float *vertices;
   unsigned int *indices;
   unsigned int VBO, VAO, EBO;

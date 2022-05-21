@@ -3,5 +3,5 @@
 
 namespace Shapes
 {
-  Shape from_file(std::string path);
+  Shape* from_file(std::string path);
 }

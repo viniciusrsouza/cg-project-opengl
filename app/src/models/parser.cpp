@@ -77,17 +77,17 @@ void fill_normals(float* vertices, unsigned int* indices, int vert_count, int tr
   }
 }
 
-Shape Shapes::from_file(std::string path)
+Shape* Shapes::from_file(std::string path)
 {
   auto data = parse_byu(path);
 
   fill_normals(data.vertices, data.indices, data.vert_count, data.triangle_count);
 
-  Shape object;
-  object.vertices = data.vertices;
-  object.indices = data.indices;
-  object.index_size = data.triangle_count * 3 * sizeof(unsigned int);
-  object.vertex_size = data.vert_count * 6 * sizeof(float);
+  Shape* object = new Shape();
+  object->vertices = data.vertices;
+  object->indices = data.indices;
+  object->index_size = data.triangle_count * 3 * sizeof(unsigned int);
+  object->vertex_size = data.vert_count * 6 * sizeof(float);
 
   return object;
 }

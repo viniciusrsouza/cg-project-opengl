@@ -21,4 +21,5 @@ target_link_libraries(
   cgproject 
   glfw
   glm
+  yaml-cpp
 )

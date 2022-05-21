@@ -1,4 +1,6 @@
 #include <iostream>
+#include <vector>
+#include <cstdlib>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -6,9 +8,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <yaml-cpp/yaml.h>
+
 #include <core/shader.h>
 #include <models/shape.h>
 #include <models/parser.h>
+#include <config/settings.h>
 
 int init(GLFWwindow **window);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -26,6 +31,15 @@ int main(void)
     std::cerr << "Application failed to initialize with code: " << err << std::endl;
     return err;
   }
+
+  YAML::Node config = YAML::LoadFile("config.yaml");
+  if (!config["settings"])
+  {
+    std::cout << "Could not find settings in config.yaml" << std::endl;
+    return 1;
+  }
+  Settings::Config cfg = config["settings"].as<Settings::Config>();
+
   Shader shader("resources/shaders/projection-vert.glsl", "resources/shaders/gouraud-frag.glsl");
   Shader light_shader("resources/shaders/light-vert.glsl", "resources/shaders/light-frag.glsl");
 
@@ -49,9 +63,17 @@ int main(void)
   cube.position = glm::vec3(-1.5f, -1.2f, -2.5f);
   cube.bind();
 
-  Shape object = Shapes::from_file("resources/models/vaso.byu");
-  object.position = glm::vec3(1.5f, -20.2f, -80.5f);
-  object.bind();
+  int obj_count = cfg.objects.size();
+  Shape** objects = (Shape**) malloc(sizeof(Shape) * obj_count);
+  std::cout << "count: " << obj_count << std::endl;
+  for (int i = 0; i < obj_count; i++)
+  {
+    Shape* obj = Shapes::from_file(cfg.objects[i].file);
+    obj->position = cfg.objects[i].position;
+    obj->scale = glm::vec3(cfg.objects[i].scale);
+    obj->bind();
+    objects[i] = obj;
+  }
 
   // render loop
   while (!glfwWindowShouldClose(window))
@@ -88,10 +110,15 @@ int main(void)
     shader.setMat4("model", model);
     cube.draw();
 
-    model = glm::translate(glm::mat4(1.0f), object.position);
-    model = glm::scale(model, glm::vec3(0.1f));
-    shader.setMat4("model", model);
-    object.draw();
+    for (int i=0; i < obj_count; i++)
+    {
+      auto obj = objects[i];
+      model = glm::mat4(1.0f);
+      model = glm::translate(model, obj->position);
+      model = glm::scale(model, obj->scale);
+      shader.setMat4("model", model);
+      obj->draw();
+    }
 
     // glBindVertexArray(VAO);
     // for (unsigned int i = 0; i < cube_count; i++)
