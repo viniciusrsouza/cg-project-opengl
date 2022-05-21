@@ -20,4 +20,5 @@ target_include_directories(cgproject PRIVATE ${INC})
 target_link_libraries(
   cgproject 
   glfw
+  glm
 )
