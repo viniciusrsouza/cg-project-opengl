@@ -8,6 +8,7 @@
 
 #include <core/shader.h>
 #include <models/shape.h>
+#include <models/parser.h>
 
 int init(GLFWwindow **window);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -37,7 +38,7 @@ int main(void)
   // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
   // glEnableVertexAttribArray(0);
 
-  glm::vec3 light_position(2.0f, 1.0f, -1.0f);
+  glm::vec3 light_position(-1.0f, 0.5f, 0.0f);
   glm::vec3 light_color(1.0f, 1.0f, 1.0f);
 
   Shape light = Primitives::getCube();
@@ -48,9 +49,10 @@ int main(void)
   cube.position = glm::vec3(-1.5f, -1.2f, -2.5f);
   cube.bind();
 
-  std::cout << "cube.vertices: " << sizeof(cube.vertices) << std::endl;
-  std::cout << "indices: " << cube.index_size / sizeof(unsigned int) << std::endl;
-  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  Shape object = Shapes::from_file("resources/models/vaso.byu");
+  object.position = glm::vec3(1.5f, -20.2f, -80.5f);
+  object.bind();
+
   // render loop
   while (!glfwWindowShouldClose(window))
   {
@@ -75,16 +77,21 @@ int main(void)
     light_shader.setVec3("light_color", light_color);
     light.draw();
 
-    model = glm::translate(glm::mat4(1.0f), cube.position);
     shader.use();
     shader.setVec3("object_color", 1.0f, 0.5f, 0.31f);
     shader.setVec3("light_color", light_color);
     shader.setVec3("light_pos", light_position);
     shader.setMat4("projection", projection);
     shader.setMat4("view", view);
+    
+    model = glm::translate(glm::mat4(1.0f), cube.position);
     shader.setMat4("model", model);
-
     cube.draw();
+
+    model = glm::translate(glm::mat4(1.0f), object.position);
+    model = glm::scale(model, glm::vec3(0.1f));
+    shader.setMat4("model", model);
+    object.draw();
 
     // glBindVertexArray(VAO);
     // for (unsigned int i = 0; i < cube_count; i++)
@@ -162,5 +169,13 @@ void processInput(GLFWwindow *window)
   {
     glfwSetWindowShouldClose(window, true);
     std::cout << "Escape key pressed, terminating..." << std::endl;
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+  {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  } else
+  {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
 }

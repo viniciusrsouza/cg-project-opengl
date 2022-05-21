@@ -21,4 +21,5 @@ void main() {
 
   vec3 result = (ambient + diffuse) * object_color;
   color = vec4(result, 1.0);
+  // color = vec4(0.6, 0.0, 0.5, 1.0);
 }
