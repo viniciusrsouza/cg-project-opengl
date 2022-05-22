@@ -22,4 +22,5 @@ public:
 namespace Primitives
 {
   Shape getCube();
+  Shape getFloor();
 };

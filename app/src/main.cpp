@@ -43,15 +43,6 @@ int main(void)
   Shader shader("resources/shaders/projection-vert.glsl", "resources/shaders/gouraud-frag.glsl");
   Shader light_shader("resources/shaders/light-vert.glsl", "resources/shaders/light-frag.glsl");
 
-  // Light
-  // unsigned int lightVAO;
-  // glGenVertexArrays(1, &lightVAO);
-  // glBindVertexArray(lightVAO);
-
-  // glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
-  // glEnableVertexAttribArray(0);
-
   glm::vec3 light_position(-1.0f, 0.5f, 0.0f);
   glm::vec3 light_color(1.0f, 1.0f, 1.0f);
 
@@ -59,9 +50,8 @@ int main(void)
   light.position = light_position;
   light.bind();
 
-  Shape cube = Primitives::getCube();
-  cube.position = glm::vec3(-1.5f, -1.2f, -2.5f);
-  cube.bind();
+  Shape floor = Primitives::getFloor();
+  floor.bind();
 
   int obj_count = cfg.objects.size();
   Shape** objects = (Shape**) malloc(sizeof(Shape) * obj_count);
@@ -106,9 +96,10 @@ int main(void)
     shader.setMat4("projection", projection);
     shader.setMat4("view", view);
     
-    model = glm::translate(glm::mat4(1.0f), cube.position);
-    shader.setMat4("model", model);
-    cube.draw();
+    // model = glm::mat4(1.0f);
+    // model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f));
+    // shader.setMat4("model", model);
+    // floor.draw();
 
     for (int i=0; i < obj_count; i++)
     {
@@ -119,18 +110,6 @@ int main(void)
       shader.setMat4("model", model);
       obj->draw();
     }
-
-    // glBindVertexArray(VAO);
-    // for (unsigned int i = 0; i < cube_count; i++)
-    // {
-    //   glm::mat4 model = glm::mat4(1.0f);
-    //   model = glm::translate(model, cubePositions[i]);
-    //   float angle = 20.0f * i;
-    //   model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-    //   shader.setMat4("model", model);
-
-    //   glDrawArrays(GL_TRIANGLES, 0, 36);
-    // }
 
     glfwSwapBuffers(window);
   }

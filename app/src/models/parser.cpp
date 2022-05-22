@@ -42,6 +42,9 @@ static auto parse_byu(std::string path)
     file >> indices[i*3];
     file >> indices[i*3+1];
     file >> indices[i*3+2];
+    --indices[i*3];
+    --indices[i*3+1];
+    --indices[i*3+2];
   }
 
   file.close();

@@ -49,7 +49,7 @@ void Shape::draw()
 {
   glBindVertexArray(VAO);
   glDrawElements(GL_TRIANGLES, index_size / sizeof(unsigned int), GL_UNSIGNED_INT, 0);
-  // glBindVertexArray(0);
+  glBindVertexArray(0);
 }
 
 Shape Primitives::getCube()
@@ -89,4 +89,30 @@ Shape Primitives::getCube()
   memcpy(cube->indices, indices, sizeof(indices));  
 
   return *cube;
+}
+
+Shape Primitives::getFloor()
+{
+  Shape *floor = new Shape();
+  float vertices[] = {
+      // positions          // normals
+      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+      0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+      0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+      -0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
+  };
+
+  unsigned int indices[] = {
+      0, 1, 2,
+      0, 2, 3
+  };
+
+  floor->vertex_size = sizeof(vertices);
+  floor->vertices = (float*) malloc(sizeof(vertices));
+  memcpy(floor->vertices, vertices, sizeof(vertices));
+  floor->index_size = sizeof(indices);
+  floor->indices = (unsigned int*) malloc(sizeof(indices));
+  memcpy(floor->indices, indices, sizeof(indices));  
+
+  return *floor;
 }
