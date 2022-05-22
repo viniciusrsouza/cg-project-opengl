@@ -96,12 +96,14 @@ struct convert<Settings::Config> {
     if (node["objects"])
     {
       int i = 0;
-      conf.objects = std::vector<Settings::Object>(node["objects"].size());
+      conf.objects = std::vector<Settings::Object>();
       auto it = node["objects"].begin();
       while (it != node["objects"].end())
       {
+        std::cout << "parsing: " << it->first.as<std::string>() << std::endl;
+        std::cout << "file: " << it->second["file"].as<std::string>() << std::endl;
         auto obj = it->second.as<Settings::Object>();
-        conf.objects[i] = obj;
+        conf.objects.push_back(obj);
         it++;
       }
     }

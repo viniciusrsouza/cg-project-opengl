@@ -4,11 +4,21 @@ settings:
   objects:
     example:
       # object file
-      file: "resources/models/maca2.byu"
+      file: "resources/models/calice2.byu"
+      # object scale, default is 1
+      scale: 0.1
+      # object position
+      position:
+        - -25.5
+        - 20.2
+        - -90.5
+    example2:
+      # object file
+      file: "resources/models/vaso.byu"
       # object scale, default is 1
       scale: 0.1
       # object position
       position:
         - 1.5
-        - -20.2
+        - 20.2
         - -80.5

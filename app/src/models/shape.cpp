@@ -3,13 +3,9 @@
 #include <cstdlib>
 #include <iostream>
 
-Shape::Shape()
-{
-  std::cout << "Shape::Shape()" << std::endl;
-}
+Shape::Shape() {}
 Shape::~Shape()
 {
-  std::cout << "destroying shape" << std::endl;
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
   glDeleteBuffers(1, &EBO);

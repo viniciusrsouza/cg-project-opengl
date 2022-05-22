@@ -11,16 +11,27 @@
 #include <yaml-cpp/yaml.h>
 
 #include <core/shader.h>
+#include <core/camera.h>
 #include <models/shape.h>
 #include <models/parser.h>
 #include <config/settings.h>
 
 int init(GLFWwindow **window);
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+void framebufferSizeCallback(GLFWwindow *window, int width, int height);
+void mouseCallback(GLFWwindow *window, double xpos, double ypos);
 void processInput(GLFWwindow *window);
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+unsigned int SCR_WIDTH = 800;
+unsigned int SCR_HEIGHT = 600;
+
+float delta_time = 0.0f;
+float last_frame = 0.0f;
+
+float last_x = SCR_WIDTH / 2.0f;
+float last_y = SCR_HEIGHT / 2.0f;
+float first_mouse = true;
+
+Camera *camera;
 
 int main(void)
 {
@@ -32,6 +43,7 @@ int main(void)
     return err;
   }
 
+  // load configs
   YAML::Node config = YAML::LoadFile("config.yaml");
   if (!config["settings"])
   {
@@ -39,13 +51,30 @@ int main(void)
     return 1;
   }
   Settings::Config cfg = config["settings"].as<Settings::Config>();
+  std::cout << cfg << std::endl;
 
+  // load camera
+  camera = new Camera(
+    glm::vec3(0.0f, 0.0f, 3.0f),
+    glm::vec3(0.0f, 1.0f, 0.0f),
+    -90.0f,
+    0.0f,
+    12.5f,
+    0.1f,
+    45.0f,
+    45.0f,
+    5.0f,
+    10000.0f
+  );
+
+  // load shaders and light
   Shader shader("resources/shaders/projection-vert.glsl", "resources/shaders/gouraud-frag.glsl");
   Shader light_shader("resources/shaders/light-vert.glsl", "resources/shaders/light-frag.glsl");
 
   glm::vec3 light_position(-1.0f, 0.5f, 0.0f);
   glm::vec3 light_color(1.0f, 1.0f, 1.0f);
 
+  // load objects
   Shape light = Primitives::getCube();
   light.position = light_position;
   light.bind();
@@ -73,10 +102,8 @@ int main(void)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     /* render here */
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 projection = glm::mat4(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    glm::mat4 view = camera->getView();
+    glm::mat4 projection = camera->getProjection((float)SCR_WIDTH / (float)SCR_HEIGHT);
 
     light_shader.use();
     glm::mat4 model = glm::mat4(1.0f);
@@ -107,11 +134,16 @@ int main(void)
       model = glm::mat4(1.0f);
       model = glm::translate(model, obj->position);
       model = glm::scale(model, obj->scale);
+      model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+      model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
       shader.setMat4("model", model);
       obj->draw();
     }
 
     glfwSwapBuffers(window);
+    float current_frame = glfwGetTime();
+    delta_time = current_frame - last_frame;
+    last_frame = current_frame; 
   }
 
   return 0;
@@ -156,17 +188,39 @@ int init(GLFWwindow **window)
   std::cout << "Initialized OpenGL context" << std::endl;
   std::cout << glGetString(GL_VERSION) << std::endl;
 
-  glfwSetFramebufferSizeCallback(*window, framebuffer_size_callback);
+  glfwSetFramebufferSizeCallback(*window, framebufferSizeCallback);
+  glfwSetCursorPosCallback(*window, mouseCallback);
 
   glEnable(GL_DEPTH_TEST);
-  // glfwSetInputMode(*window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  glfwSetInputMode(*window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   return 0;
 }
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
   glViewport(0, 0, width, height);
+  SCR_WIDTH = width;
+  SCR_HEIGHT = height;
+}
+
+void mouseCallback(GLFWwindow *window, double xpos, double ypos)
+{
+  std::cout << "mouse callback" << std::endl;
+  std::cout << xpos << " " << ypos << std::endl;
+  if (first_mouse)
+  {
+    last_x = xpos;
+    last_y = ypos;
+    first_mouse = false;
+  }
+
+  float xoffset = xpos - last_x;
+  float yoffset = last_y - ypos;
+  last_x = xpos;
+  last_y = ypos;
+
+  camera->rotate(xoffset, yoffset);
 }
 
 void processInput(GLFWwindow *window)
@@ -183,5 +237,31 @@ void processInput(GLFWwindow *window)
   } else
   {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
+
+  // camera movements
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+  {
+    camera->move(Camera::FORWARD, delta_time);
+  }
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+  {
+    camera->move(Camera::BACKWARD, delta_time);
+  }
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+  {
+    camera->move(Camera::LEFT, delta_time);
+  }
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+  {
+    camera->move(Camera::RIGHT, delta_time);
+  }
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+  {
+    camera->move(Camera::UP, delta_time);
+  }
+  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+  {
+    camera->move(Camera::DOWN, delta_time);
   }
 }
