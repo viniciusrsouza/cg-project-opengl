@@ -3,7 +3,15 @@
 #include <cstdlib>
 #include <iostream>
 
-Shape::Shape() {}
+Shape::Shape() 
+{
+  material = {
+    glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), // ambient
+    glm::vec4(0.7f, 0.5f, 0.8f, 1.0f), // diffuse
+    glm::vec4(0.5f, 0.5f, 0.5f, 1.0f), // specular
+    100.0f // shininess
+  };
+}
 Shape::~Shape()
 {
   glDeleteVertexArrays(1, &VAO);
@@ -39,6 +47,21 @@ void Shape::bind()
 
   // unbind
   glBindVertexArray(0);
+}
+
+void Shape::withShader(Shader *shader)
+{
+  shader->setVec4("material.ambient", material.ambient);
+  shader->setVec4("material.diffuse", material.diffuse);
+  shader->setVec4("material.specular", material.specular);
+  shader->setFloat("material.shininess", material.shininess);
+
+  glm::mat4 model = glm::mat4(1.0f);
+  model = glm::translate(model, position);
+  model = glm::scale(model, scale);
+  model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+  model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+  shader->setMat4("model", model);
 }
 
 void Shape::draw()

@@ -104,12 +104,7 @@ int main(void)
     for (int i = 0; i < model_count; i++)
     {
       auto obj = models[i];
-      model = glm::mat4(1.0f);
-      model = glm::translate(model, obj->position);
-      model = glm::scale(model, obj->scale);
-      model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-      model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-      shader.setMat4("model", model);
+      obj->withShader(&shader);
       obj->draw();
     }
 
@@ -264,6 +259,7 @@ int loadModels()
   {
     auto obj = Shapes::from_file(cfg.objects[i].file);
     obj->position = cfg.objects[i].position;
+    obj->material = cfg.objects[i].material;
     obj->scale = glm::vec3(cfg.objects[i].scale);
     obj->bind();
     models[i] = obj;

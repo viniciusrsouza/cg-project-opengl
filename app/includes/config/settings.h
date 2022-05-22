@@ -4,6 +4,7 @@
 #include <string>
 #include <glm/glm.hpp>
 #include <yaml-cpp/yaml.h>
+#include <models/shape.h>
 
 namespace Settings
 {
@@ -20,8 +21,9 @@ namespace Settings
       }
 
       std::string file;
-      float scale;
       glm::vec3 position;
+      Material material;
+      float scale;
   };
   class Config
   {
@@ -48,11 +50,6 @@ namespace YAML
 {
 template<>
 struct convert<glm::vec3> {
-  static Node encode(const glm::vec3 &v)
-  {
-    return Node();
-  }
-
   static bool decode(const Node &node, glm::vec3 &v)
   {
     if (!node.IsSequence())
@@ -67,12 +64,37 @@ struct convert<glm::vec3> {
 };
 
 template<>
-struct convert<Settings::Object> {
-  static Node encode(const Settings::Object &obj)
+struct convert<glm::vec4> {
+  static bool decode(const Node &node, glm::vec4 &v)
   {
-    return Node();
+    if (!node.IsSequence())
+      return false;
+    if (node.size() != 4)
+      return false;
+    v.x = node[0].as<float>();
+    v.y = node[1].as<float>();
+    v.z = node[2].as<float>();
+    v.w = node[3].as<float>();
+    return true;
   }
+};
 
+template<>
+struct convert<Material> {
+  static bool decode(const Node &node, Material &mat)
+  {
+    if (!node.IsMap())
+      return false;
+    mat.ambient = node["ambient"].as<glm::vec4>();
+    mat.diffuse = node["diffuse"].as<glm::vec4>();
+    mat.specular = node["specular"].as<glm::vec4>();
+    mat.shininess = node["shininess"].as<float>();
+    return true;
+  }
+};
+
+template<>
+struct convert<Settings::Object> {
   static bool decode(const Node &node, Settings::Object &obj)
   {
     if (!node.IsMap())
@@ -80,17 +102,13 @@ struct convert<Settings::Object> {
     obj.file = node["file"].as<std::string>();
     obj.scale = node["scale"].as<float>();
     obj.position = node["position"].as<glm::vec3>();
+    obj.material = node["material"].as<Material>();
     return true;
   }
 };
 
 template<>
 struct convert<Settings::Config> {
-  static Node encode(const Settings::Config &conf)
-  {
-    return Node();
-  }
-
   static bool decode(const Node &node, Settings::Config &conf)
   {
     if (node["objects"])
