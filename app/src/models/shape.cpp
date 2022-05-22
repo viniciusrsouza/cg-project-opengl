@@ -59,8 +59,6 @@ void Shape::withShader(Shader *shader)
   glm::mat4 model = glm::mat4(1.0f);
   model = glm::translate(model, position);
   model = glm::scale(model, scale);
-  model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-  model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
   shader->setMat4("model", model);
 }
 

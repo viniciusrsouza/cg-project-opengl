@@ -1,4 +1,5 @@
 #include <models/parser.h>
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <fstream>
 
@@ -17,7 +18,6 @@ static auto parse_byu(std::string path)
     std::cout << "Could not open file: " << path << std::endl;
     return data{nullptr, nullptr, 0, 0};
   }
-  std::cout << "Parsing byu file: " << path << std::endl;
 
   int vert_count = 0;
   int triangle_count = 0;
@@ -52,6 +52,20 @@ static auto parse_byu(std::string path)
   return data{vertices, indices, vert_count, triangle_count};
 }
 
+void rotate(float* vertices, int vert_count)
+{
+  glm::mat4 model(1.0f);
+  model = glm::rotate(model, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+  for (int i=0; i<vert_count; i++)
+  {
+    glm::vec3 v1 = glm::vec3(vertices[i*6], vertices[i*6+1], vertices[i*6+2]);
+    v1 = glm::vec3(model * glm::vec4(v1, 1.0f));
+    vertices[i*6] = v1.x;
+    vertices[i*6+1] = v1.y;
+    vertices[i*6+2] = v1.z;
+  }
+}
+
 void fill_normals(float* vertices, unsigned int* indices, int vert_count, int triangle_count)
 {
   for (int i=0; i<triangle_count; i++)
@@ -84,6 +98,7 @@ Shape* Shapes::from_file(std::string path)
 {
   auto data = parse_byu(path);
 
+  rotate(data.vertices, data.vert_count);
   fill_normals(data.vertices, data.indices, data.vert_count, data.triangle_count);
 
   Shape* object = new Shape();

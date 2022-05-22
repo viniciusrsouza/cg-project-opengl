@@ -1,27 +1,44 @@
 settings:
+  light:
+    position: [0, 500, 200]
+    ambient: [0.4, 0.4, 0.4, 1.0]
+    diffuse: [0.5, 0.85, 1.0, 1.0]
+    specular: [0.5, 0.55, 1.0, 1.0]
+  
+  camera:
+    position: [-50, 400, 550]
+    fovy: 45
+    near: 5
+    far: 10000
+    speed: 100
+    yaw: -90
+    pitch: -25
+
+  misc:
+    show_floor: true
+  
+  materials:
+    purple:
+      ambient: [0.2, 0.2, 0.2, 1.0]
+      diffuse: [0.7, 0.5, 0.8, 1.0]
+      specular: [0.5, 0.5, 0.5, 1.0]
+      shininess: 100
+    orange:
+      ambient: [1.0, 0.5, 0.32, 1.0]
+      diffuse: [1.0, 0.5, 0.32, 1.0]
+      specular: [0.5, 0.5, 0.5, 1.0]
+      shininess: 32
 
   # list of objects to be rendered
   objects:
     example:
-      # object file
       file: "resources/models/maca.byu"
-      # object scale, default is 1
-      scale: 0.1
-      # object position
-      position: [-25.5 ,20.2 ,-90.5]
-      # rgba values of each material color, [0 ~ 1]
-      material:
-        ambient: [1.0, 0.5, 0.31, 1.0]
-        diffuse: [1.0 ,0.5 ,0.31 ,1.0]
-        specular: [0.5 ,0.5 ,0.5 ,1.0]
-        shininess: 32
+      scale: 1
+      position: [-200, 400, -90.5]
+      material: "purple"
   
     example2:
       file: "resources/models/vaso.byu"
-      scale: 0.1
-      position: [1.5 ,20.2 ,-80.5]
-      material:
-        ambient: [0.2 ,0.2 ,0.2 ,1.0]
-        diffuse: [0.7 ,0.5 ,0.8 ,1.0]
-        specular: [0.5 ,0.5 ,0.5 ,1.0]
-        shininess: 100
+      scale: 1
+      position: [145, 400, -80.5]
+      material: "orange"

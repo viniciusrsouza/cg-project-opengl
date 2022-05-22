@@ -37,10 +37,6 @@ Camera *camera;
 // settings
 Settings::Config cfg;
 
-// light
-glm::vec3 light_position(-1.0f, 0.5f, 0.0f);
-glm::vec3 light_color(1.0f, 1.0f, 1.0f);
-
 // models
 Shape *light;
 Shape *floor_shape;
@@ -79,27 +75,29 @@ int main(void)
 
     light_shader.use();
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, light_position);
+    model = glm::translate(model, cfg.light.position);
     model = glm::scale(model, glm::vec3(2.2f));
 
     light_shader.setMat4("model", model);
     light_shader.setMat4("projection", projection);
     light_shader.setMat4("view", view);
-    light_shader.setVec3("light_color", light_color);
+    light_shader.setVec4("light_color", cfg.light.diffuse);
     light->draw();
 
     shader.use();
-    shader.setVec3("object_color", 1.0f, 0.5f, 0.31f);
-    shader.setVec3("light_color", light_color);
-    shader.setVec3("light_pos", light_position);
-    shader.setVec3("view_pos", camera->p);
     shader.setMat4("view", view);
     shader.setMat4("projection", projection);
+    shader.setVec3("view_pos", camera->p);
+    shader.setVec4("light.ambient", cfg.light.ambient);
+    shader.setVec4("light.diffuse", cfg.light.diffuse);
+    shader.setVec4("light.specular", cfg.light.specular);
+    shader.setVec3("light.position", cfg.light.position);
 
-    // model = glm::mat4(1.0f);
-    // model = glm::scale(model, glm::vec3(10.0f, 1.0f, 10.0f));
-    // shader.setMat4("model", model);
-    // floor_shape.draw();
+    if (cfg.show_floor)
+    {
+      floor_shape->withShader(&shader);
+      floor_shape->draw();
+    }
 
     for (int i = 0; i < model_count; i++)
     {
@@ -217,23 +215,16 @@ int loadConfig()
 int loadCamera()
 {
   camera = new Camera(
-      glm::vec3(0.0f, 0.0f, 3.0f),
+      cfg.camera.position,
       glm::vec3(0.0f, 1.0f, 0.0f),
-      -90.0f,
-      0.0f,
-      12.5f,
+      cfg.camera.yaw,
+      cfg.camera.pitch,
+      cfg.camera.speed,
       0.1f,
       45.0f,
-      45.0f,
-      5.0f,
-      10000.0f);
-  return 0;
-}
-
-int loadLight()
-{
-  light_position = glm::vec3(-1.0f, 0.5f, 0.0f);
-  light_color = glm::vec3(1.0f, 1.0f, 1.0f);
+      cfg.camera.fovy,
+      cfg.camera.near,
+      cfg.camera.far);
   return 0;
 }
 
@@ -245,11 +236,19 @@ int loadModels()
 
   // light model
   light = Primitives::getCube();
-  light->position = light_position;
+  light->position = cfg.light.position;
   light->bind();
 
   // floor_shape model
   floor_shape = Primitives::getFloor();
+  floor_shape->scale = glm::vec3(15000.0f, 1.0f, 15000.0f);
+  floor_shape->position = glm::vec3(0.0f, 0.0f, 0.0f);
+  floor_shape->material = {
+      glm::vec4(0.2f, 0.2f, 0.2f, 1.0f),
+      glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+      glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+      50.0f,
+  };
   floor_shape->bind();
 
   // parameterized models
@@ -272,9 +271,8 @@ int load()
 {
   int cgf_err = loadConfig();
   int cam_err = loadCamera();
-  int lgt_err = loadLight();
   int mod_err = loadModels();
-  if (cgf_err || cam_err || lgt_err || mod_err)
+  if (cgf_err || cam_err || mod_err)
     return 1;
   return 0;
 }
