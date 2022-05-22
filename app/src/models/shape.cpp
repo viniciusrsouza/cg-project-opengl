@@ -48,7 +48,7 @@ void Shape::draw()
   glBindVertexArray(0);
 }
 
-Shape Primitives::getCube()
+Shape* Primitives::getCube()
 {
   Shape *cube = new Shape();
   float vertices[] = {
@@ -84,10 +84,10 @@ Shape Primitives::getCube()
   cube->indices = (unsigned int*) malloc(sizeof(indices));
   memcpy(cube->indices, indices, sizeof(indices));  
 
-  return *cube;
+  return cube;
 }
 
-Shape Primitives::getFloor()
+Shape* Primitives::getFloor()
 {
   Shape *floor = new Shape();
   float vertices[] = {
@@ -110,5 +110,5 @@ Shape Primitives::getFloor()
   floor->indices = (unsigned int*) malloc(sizeof(indices));
   memcpy(floor->indices, indices, sizeof(indices));  
 
-  return *floor;
+  return floor;
 }
