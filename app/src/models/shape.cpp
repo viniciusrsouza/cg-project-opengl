@@ -17,8 +17,8 @@ Shape::~Shape()
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
   glDeleteBuffers(1, &EBO);
-  // delete[] vertices;
-  // delete[] indices;
+  delete[] vertices;
+  delete[] indices;
 }
 
 void Shape::bind()
