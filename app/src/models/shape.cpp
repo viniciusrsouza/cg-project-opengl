@@ -1,6 +1,6 @@
 #include <models/shape.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <cstdlib>
+#include <cstring>
 #include <iostream>
 
 Shape::Shape() 
