@@ -27,8 +27,6 @@ The `config.yaml`file contains all the parameters used by the program, inclusing
 
 Moving the cursor while pressing the left mouse button will rotate the camera.
 
-![Sample gif of the application](https://github.com/viniciusrsouza/cg-project-opengl/blob/main/images/sample.gif?raw=true)
-
 ## Build
 ```bash
 # initialize submodules
